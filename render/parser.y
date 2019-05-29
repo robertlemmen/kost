@@ -42,21 +42,33 @@
 %printer { yyo << $$; } <*>;
 
 %%
-%start unit;
-unit: assignments exp  { drv.result = $2; };
+%start entities;
 
-assignments:
-  %empty                 {}
-| assignments assignment {};
+entities: /* empty */
+    | entities entity;
 
-assignment:
-  "identifier" ":=" exp { drv.variables[$1] = $3; };
+entity: type identifier body
+    | type body;
+
+type: identifier;
+
+body: '{' properties entities '}'
+
+properties: /* empty */
+    | properties property;
+
+property: identifier ':' value;
+
+identifier: IDENTIFIER;
+
+object: exp {};
+
+value: NUMBER;
 
 %left "+" "-";
 %left "*" "/";
 exp:
   "number"
-| "identifier"  { $$ = drv.variables[$1]; }
 | exp "+" exp   { $$ = $1 + $3; }
 | exp "-" exp   { $$ = $1 - $3; }
 | exp "*" exp   { $$ = $1 * $3; }
@@ -64,8 +76,6 @@ exp:
 | "(" exp ")"   { $$ = $2; }
 %%
 
-void
-yy::parser::error (const location_type& l, const std::string& m)
-{
-  std::cerr << l << ": " << m << '\n';
+void yy::parser::error(const location_type& l, const std::string& m) {
+    std::cerr << l << ": " << m << '\n';
 }
