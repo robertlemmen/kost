@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e
+
+git_hash=$(git log -1 --pretty=format:g%h)
+git_dirty=$(git describe --all --long --dirty | grep -q dirty && echo ' (dirty)' || true)
+git_tag=$(git describe --exact-match 2>/dev/null || true)
+version_string="${git_tag:-$git_hash}$git_dirty"
+
+echo "KOST $version_string"
+echo -n "Time now is "; date --iso-8601=seconds
+
+echo "Cleaning up..."
+rm -rf state
+mkdir state
+
+# XXX we could have a cmdline to skip this and just re-run the inferring etc
+echo "Stage 1: Running input gatherers..."
+find input.d -type f | sort | sed -e 's/^input.d\///' | while read file; do
+    echo "  $file"
+    if [[ -x "input.d/$file" ]]; then
+        # XXX would be nice to redirect stderr to stdout, but not to the facts
+        # file
+        input.d/$file >> state/1-facts
+    else
+        cat input.d/$file >> state/1-facts
+    fi
+done
+num_lines=`wc -l state/1-facts | cut -f 1 -d ' '`
+echo "Collected $num_lines lines of input facts"
+
+echo "Stage 2: Generic inferring..."
+swipl -s generic-infer > state/2-inferred
+
+# stage 3: specific inferring
+# XXX skip this for now to shorten the pipeline and get to the render stage...
+
+# stage 4: render
+# XXX for now let's assume I know how to get stage 2+3 working, and I have
+# created some output in HUTN:
+cat << EOF > state/3-transformed
+Service “qualitrain-user-service” {
+    Name: "qualitrain-user-service”
+
+    Interface "qt-us-if1" {
+        Type: "REST"
+        Path: "/api/v1"
+    }
+}
+
+Service “qualitrain-api-service” {
+    Name: "qualitrain-api-service”
+    InterfaceConsumption {
+        Interface: "qt-us-if1"
+    }
+}
+EOF

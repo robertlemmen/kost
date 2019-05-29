@@ -1,0 +1,8 @@
+# vi:syntax=prolog
+
+:- initialization main, halt.
+
+consult(facts).
+
+main :-
+    write('Hello, World!'), nl.

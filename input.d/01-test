@@ -1,0 +1,11 @@
+#!/usr/bin/env perl6
+
+# this is of course stupid, just to test the pipeline before setting up a input
+# gatherer
+say q:to/EFACTS/;
+service(qualitrain-api-service).
+service(qualitrain-user-service).
+service(qualitrain-user-frontend).
+service(qualitrain-admin-frontend).
+service(qualitrain-web-gateway).
+EFACTS
