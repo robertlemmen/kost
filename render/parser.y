@@ -9,6 +9,8 @@
 %code requires {
 #include <string>
 
+#include "ast.h"
+
 class driver;
 }
 
@@ -37,6 +39,9 @@ class driver;
 %token <std::string> STRING "string literal"
 %token <int> NUMBER "number"
 
+%type <Property> property
+%type <Value> value
+
 %printer { yyo << $$; } <*>;
 
 %%
@@ -48,10 +53,10 @@ opt_entities: /* empty */
 entities: entity
     | entities entity;
 
-entity: type identifier body
+entity: type IDENTIFIER body
     | type body;
 
-type: identifier;
+type: IDENTIFIER;
 
 body: LBRACKET properties entities RBRACKET  
     | LBRACKET properties RBRACKET  
@@ -61,16 +66,15 @@ body: LBRACKET properties entities RBRACKET
 properties: property
     | properties property;
 
-property: IDENTIFIER COLON value 
+property: IDENTIFIER COLON value { $$ = Property($1, $3); }
 
-identifier: IDENTIFIER;
-
+// XXX need type for this
 fqn: IDENTIFIER
     | fqn DCOLON IDENTIFIER;
 
-value: NUMBER
-    | STRING
-    | fqn;
+value: NUMBER { $$ = Value($1); }
+    | STRING  { $$ = Value($1); }
+    | fqn     { $$ = Value(""); };
 
 %%
 

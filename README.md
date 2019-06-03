@@ -56,7 +56,6 @@ XXX no diea, but we will need some form of common modules that can be shared
 ## Rendering 
 
 the output of the specific inferring and transformation stage is a single set
-of diagram entities, serialized via [HUTN]. There are a fixed number of types
-and properties supported by the render stage, which are documented at XXX
-
-[HUTN] https://www.omg.org/spec/HUTN 
+of diagram entities, serialized via a custom but simple format of nested
+entities with a type an properties on them each. Please see XXX for an example
+of the format, as well as the types and properties supported.
