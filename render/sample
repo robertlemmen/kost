@@ -1,18 +1,20 @@
 # test234
-Service qualitrain-user-service {
-    Name: "qualitrain-user-service"
-    Check: 1
+SubSystem qt {
+    Label: "Qualitrain Backend"
+    Service qualitrain-user-service {
+        Label: "qualitrain-user-service"
 
-    Interface if1 {
-        Type: "REST"
-        Name: "ofenrohre"
+        Interface if1 {
+            Type: "REST"
+            Label: "/v1/member"
+        }
     }
-}
 
-Service qualitrain-api-service {
-    Name: "qualitrain-api-service"
+    Service qualitrain-api-service {
+        Label: "qualitrain-api-service"
 
-    InterfaceConsumption {
-        Target: qualitrain-user-service::if1
+        InterfaceConsumption {
+            Target: qt::qualitrain-user-service::if1
+        }
     }
 }

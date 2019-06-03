@@ -82,23 +82,21 @@ blank [ \t\r]
   // Code run each time yylex is called.
   loc.step();
 %}
-"#".*     { /* comment */ }
-{blank}+   loc.step();
-\n+        loc.lines(yyleng); loc.step();
+"#".*        { /* comment */ }
+{blank}+     loc.step();
+\n+          loc.lines(yyleng); loc.step();
 
-"{"        return yy::parser::make_LBRACKET(loc);
-"}"        return yy::parser::make_RBRACKET(loc);
-"::"       return yy::parser::make_DCOLON(loc);
-":"        return yy::parser::make_COLON(loc);
+"{"          return yy::parser::make_LBRACKET(loc);
+"}"          return yy::parser::make_RBRACKET(loc);
+"::"         return yy::parser::make_DCOLON(loc);
+":"          return yy::parser::make_COLON(loc);
 
-{int}      return make_NUMBER(yytext, loc);
-{id}       return yy::parser::make_IDENTIFIER(yytext, loc);
-\"{id}\"   return yy::parser::make_STRING(yytext, loc);
-.          {
-             throw yy::parser::syntax_error
-               (loc, "invalid character: " + std::string(yytext));
-}
-<<EOF>>    return yy::parser::make_END(loc);
+{int}        return make_NUMBER(yytext, loc);
+{id}         return yy::parser::make_IDENTIFIER(yytext, loc);
+\"[^"\\]*\"  return yy::parser::make_STRING(yytext, loc);
+.            { throw yy::parser::syntax_error(loc, 
+                   "invalid character: " + std::string(yytext)); }
+<<EOF>>      return yy::parser::make_END(loc);
 %%
 
 yy::parser::symbol_type make_NUMBER(const std::string &s, const yy::parser::location_type& loc) {
