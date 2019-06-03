@@ -2,6 +2,22 @@
 
 using namespace std;
 
+FQN::FQN() {
+}
+
+FQN::FQN(const string &identifier, yy::location &loc) {
+    // XXX
+}
+
+FQN::FQN(const FQN &parent, const string &identifier, yy::location &loc) {
+    // XXX
+}
+
+ostream& operator<<(ostream& stream, const FQN& fqn) {
+    // XXX
+    return stream;
+}
+
 Value::Value() {
 }
 
@@ -14,6 +30,10 @@ Value::Value(const string &value, yy::location &loc) {
 }
 
 Value::Value(const char *cstr, yy::location &loc) {
+    // XXX
+}
+
+Value::Value(const FQN &fqn, yy::location &loc) {
     // XXX
 }
 

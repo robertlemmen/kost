@@ -41,6 +41,7 @@ class driver;
 
 %type <Property> property
 %type <Value> value
+%type <FQN> fqn
 
 %printer { yyo << $$; } <*>;
 
@@ -68,13 +69,12 @@ properties: property
 
 property: IDENTIFIER COLON value { $$ = Property($1, $3, @$); }
 
-// XXX need type for this
-fqn: IDENTIFIER
-    | fqn DCOLON IDENTIFIER;
+fqn: IDENTIFIER                  { $$ = FQN($1, @$); }
+    | fqn DCOLON IDENTIFIER      { $$ = FQN($1, $3, @$); }
 
-value: NUMBER { $$ = Value($1, @$); }
-    | STRING  { $$ = Value($1, @$); }
-    | fqn     { $$ = Value("", @$); };
+value: NUMBER                    { $$ = Value($1, @$); }
+    | STRING                     { $$ = Value($1, @$); }
+    | fqn                        { $$ = Value($1, @$); };
 
 %%
 
