@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include "ast.h"
 #include "parser.hh"
 
 #define YY_DECL yy::parser::symbol_type yylex (driver& drv)
@@ -26,6 +27,8 @@ class driver {
         bool trace_scanning;
         // The token's location used by the scanner.
         yy::location location;
+        // the result of the parsing
+        std::list<Entity> result;
 };
 
 #endif // DRIVER_H
