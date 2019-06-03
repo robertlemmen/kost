@@ -7,8 +7,9 @@
 %define parse.assert
 
 %code requires {
-  # include <string>
-  class driver;
+#include <string>
+
+class driver;
 }
 
 // The parsing context.
@@ -26,25 +27,25 @@
 %define api.token.prefix {TOK_}
 %token
   END  0  "end of file"
-  ASSIGN  ":="
-  MINUS   "-"
-  PLUS    "+"
-  STAR    "*"
-  SLASH   "/"
-  LPAREN  "("
-  RPAREN  ")"
+  COLON  ":"
+  DCOLON  "::"
+  LBRACKET  "{"
+  RBRACKET  "}"
 ;
 
 %token <std::string> IDENTIFIER "identifier"
+%token <std::string> STRING "string literal"
 %token <int> NUMBER "number"
-%type  <int> exp
 
 %printer { yyo << $$; } <*>;
 
 %%
-%start entities;
+%start opt_entities;
 
-entities: /* empty */
+opt_entities: /* empty */
+    | entities;
+
+entities: entity
     | entities entity;
 
 entity: type identifier body
@@ -52,28 +53,25 @@ entity: type identifier body
 
 type: identifier;
 
-body: '{' properties entities '}'
+body: LBRACKET properties entities RBRACKET  
+    | LBRACKET properties RBRACKET  
+    | LBRACKET entities RBRACKET  
+    | LBRACKET RBRACKET;
 
-properties: /* empty */
+properties: property
     | properties property;
 
-property: identifier ':' value;
+property: IDENTIFIER COLON value 
 
 identifier: IDENTIFIER;
 
-object: exp {};
+fqn: IDENTIFIER
+    | fqn DCOLON IDENTIFIER;
 
-value: NUMBER;
+value: NUMBER
+    | STRING
+    | fqn;
 
-%left "+" "-";
-%left "*" "/";
-exp:
-  "number"
-| exp "+" exp   { $$ = $1 + $3; }
-| exp "-" exp   { $$ = $1 - $3; }
-| exp "*" exp   { $$ = $1 * $3; }
-| exp "/" exp   { $$ = $1 / $3; }
-| "(" exp ")"   { $$ = $2; }
 %%
 
 void yy::parser::error(const location_type& l, const std::string& m) {

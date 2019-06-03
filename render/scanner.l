@@ -67,7 +67,7 @@
   make_NUMBER (const std::string &s, const yy::parser::location_type& loc);
 %}
 
-id    [a-zA-Z][a-zA-Z_0-9]*
+id    [a-zA-Z][-a-zA-Z_0-9]*
 int   [0-9]+
 blank [ \t\r]
 
@@ -82,19 +82,18 @@ blank [ \t\r]
   // Code run each time yylex is called.
   loc.step();
 %}
+"#".*     { /* comment */ }
 {blank}+   loc.step();
 \n+        loc.lines(yyleng); loc.step();
 
-"-"        return yy::parser::make_MINUS(loc);
-"+"        return yy::parser::make_PLUS(loc);
-"*"        return yy::parser::make_STAR(loc);
-"/"        return yy::parser::make_SLASH(loc);
-"("        return yy::parser::make_LPAREN(loc);
-")"        return yy::parser::make_RPAREN(loc);
-":="       return yy::parser::make_ASSIGN(loc);
+"{"        return yy::parser::make_LBRACKET(loc);
+"}"        return yy::parser::make_RBRACKET(loc);
+"::"       return yy::parser::make_DCOLON(loc);
+":"        return yy::parser::make_COLON(loc);
 
 {int}      return make_NUMBER(yytext, loc);
 {id}       return yy::parser::make_IDENTIFIER(yytext, loc);
+\"{id}\"   return yy::parser::make_STRING(yytext, loc);
 .          {
              throw yy::parser::syntax_error
                (loc, "invalid character: " + std::string(yytext));
