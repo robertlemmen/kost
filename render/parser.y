@@ -66,15 +66,15 @@ body: LBRACKET properties entities RBRACKET
 properties: property
     | properties property;
 
-property: IDENTIFIER COLON value { $$ = Property($1, $3); }
+property: IDENTIFIER COLON value { $$ = Property($1, $3, @$); }
 
 // XXX need type for this
 fqn: IDENTIFIER
     | fqn DCOLON IDENTIFIER;
 
-value: NUMBER { $$ = Value($1); }
-    | STRING  { $$ = Value($1); }
-    | fqn     { $$ = Value(""); };
+value: NUMBER { $$ = Value($1, @$); }
+    | STRING  { $$ = Value($1, @$); }
+    | fqn     { $$ = Value("", @$); };
 
 %%
 

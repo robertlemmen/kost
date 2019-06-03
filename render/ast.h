@@ -3,12 +3,14 @@
 
 #include <ostream>
 
+#include "location.hh"
+
 class Value {
     public:
         Value();
-        Value(int intval);
-        Value(const std::string &value);
-        Value(const char *cstr);
+        Value(int intval, yy::location &loc);
+        Value(const std::string &value, yy::location &loc);
+        Value(const char *cstr, yy::location &loc);
 };
 
 std::ostream& operator<<(std::ostream& stream, const Value& value);
@@ -16,7 +18,7 @@ std::ostream& operator<<(std::ostream& stream, const Value& value);
 class Property {
     public:
         Property();
-        Property(const std::string &key, const Value &value);
+        Property(const std::string &key, const Value &value, yy::location &loc);
 };
 
 std::ostream& operator<<(std::ostream& stream, const Property& property);

@@ -14,13 +14,17 @@ $(TARGET): parser.o scanner.o driver.o ast.o
 	$(CXX) $(CXXFLAGS) $(CXXINCFLAGS) -c $< -o $@
 	$(CXX) -MM -MT $@ $(CXXFLAGS) $(CXXINCFLAGS) -c $< > $*.d
 
-parser.cc parser.h: parser.y
+parser.cc parser.hh location.hh: parser.y
 	$(BISON) -o parser.cc $<
 
-scanner.cc: scanner.l
+%.cc: %.l
 	$(FLEX) -o$@ $<
 
+ast.o: location.hh
+
 .PHONY: clean
+
+.NOTPARALLEL : parser.cc parser.hh location.hh
 
 clean:
 	rm -f *.o *.d
