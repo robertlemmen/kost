@@ -1,0 +1,61 @@
+#!/usr/bin/env perl6
+
+use JSON::Fast;
+
+#XXX actually read some config file for clusters to scan, with creedentials and
+# all. for now we just use the one the user is already logged in to...
+
+sub dump-item($item) {
+    my $kind = $item<kind>.lc;
+    my $name = $item<metadata><name>;
+    my $namespace = $item<metadata><namespace>;
+    my $uid = $item<metadata><uid>;
+    say "{$kind}($uid).";
+    say "name($uid, $name).";
+    if $namespace {
+        say "in-namespace($uid, $namespace).";
+    }
+    for @($item<metadata><labels>) -> $label {
+        if $label<name> {
+            say "label($uid, $label<name>).";
+        }
+        # XXX figure out why we sometimes get into the loop, but the
+        # data is not filled
+    }
+
+    given $kind {
+        when 'pod' {
+            for @($item<metadata><ownerReferences>) -> $owner {
+                if $owner<uid> {
+                    say "owned-by($uid, $owner<uid>).";
+                }
+                # XXX figure out why we sometimes get into the loop, but the
+                # data is not filled
+            }
+        }
+        when 'service' {
+            # XXX support different types
+            say "cluster-ip($uid, $item<spec><clusterIP>).";
+            if $item<spec><selector><name> {
+                say "selector-name($uid, $item<spec><selector><name>).";
+            }
+        }
+        when 'deployment' {
+            say "replicas($uid, $item<spec><replicas>).";
+        }
+    }
+}
+
+my $ns-out = from-json(qqx{kubectl get namespaces -o json});
+
+for @($ns-out<items>) -> $ns {
+    dump-item($ns);
+
+    my $name = $ns<metadata><name>;
+
+    my $out = from-json(qqx{kubectl --namespace $name get all -o json});
+    for @($out<items>) -> $item {
+        dump-item($item);
+    }
+    
+}
