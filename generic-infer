@@ -2,7 +2,7 @@
 
 :- initialization main, halt.
 
-consult(facts).
+consult(state/1-facts).
 
 main :-
     write('Hello, World!'), nl.
