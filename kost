@@ -39,19 +39,30 @@ swipl -s generic-infer > state/2-inferred
 # XXX for now let's assume I know how to get stage 2+3 working, and I have
 # created some output in HUTN:
 cat << EOF > state/3-transformed
-Service “qualitrain-user-service” {
-    Name: "qualitrain-user-service”
+# test234
+SubSystem qt {
+    Label: "Qualitrain Backend"
+    Service qualitrain_user_service {
+        Label: "qualitrain_user_service"
 
-    Interface "qt-us-if1" {
-        Type: "REST"
-        Path: "/api/v1"
+        Interface if1 {
+            Type: "REST"
+            Label: "/v1/member"
+        }
     }
-}
 
-Service “qualitrain-api-service” {
-    Name: "qualitrain-api-service”
-    InterfaceConsumption {
-        Interface: "qt-us-if1"
+    Service qualitrain_api_service {
+        Label: "qualitrain_api_service"
+
+        InterfaceConsumption {
+            Target: qt::qualitrain_user_service::if1
+        }
     }
 }
 EOF
+
+echo "Stage 4: Rendering..."
+render/render state/3-transformed > state/4-graphviz.dot
+neato -T png state/4-graphviz.dot > output.png
+
+echo "Your results are in 'output.png'"
