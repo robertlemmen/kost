@@ -61,6 +61,11 @@ class Entity {
 
         friend std::ostream& operator<<(std::ostream& stream, const Entity& entity);
 
+        const std::string& type() const { return type_; }
+        const std::string& name() const { return name_; }
+        const std::list<Property>& properties() const { return properties_; }
+        const std::list<Entity>& entities() const { return entities_; }
+
     private:
         std::string type_;
         std::string name_;

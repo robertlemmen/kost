@@ -3,6 +3,7 @@
 #include <ostream>
 
 #include "parser.hh"
+#include "graphviz.h"
 
 using namespace std;
 
@@ -20,14 +21,21 @@ int driver::parse(const string &f) {
 	int res = parse();
 	scan_end();
 
-    cout << "AST Dump: " << endl;
-    cout << result;
+    cout << "digraph g {" << endl;
+    gv_dump(cout, result);
+	cout << "}";
 
 	return res;
 }
 
 int main(int argc, char **argv) {
 	driver drv;
-	drv.parse("sample");
+    // XXX proper cmdline args
+    if (argc == 1) {
+	    drv.parse("sample");
+    }
+    else {
+	    drv.parse(argv[1]);
+    }
 	return 0;
 }

@@ -7,7 +7,7 @@ CXX?=g++
 BISON:=bison
 FLEX:=flex
 
-$(TARGET): parser.o scanner.o driver.o ast.o
+$(TARGET): parser.o scanner.o driver.o ast.o graphviz.o model.o
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cc
