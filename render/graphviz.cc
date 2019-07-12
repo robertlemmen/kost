@@ -1,17 +1,23 @@
 #include "graphviz.h"
 
+#include <boost/algorithm/string/replace.hpp>
+
 using namespace std;
 
-// XXX escape names, fqn mapping
+// XXX fqn mapping
+
+string gv_escape_name(const string &name) {
+    return boost::replace_all_copy(name, "-", "_"); 
+}
 
 void gv_dump(ostream& stream, const Entity &entity) {
     if (entity.type() == "SubSystem") {
-        stream << "subgraph " << entity.name() << " {" << endl;
+        stream << "subgraph " << gv_escape_name(entity.name()) << " {" << endl;
         gv_dump(stream, entity.entities());
         stream << "}" << endl;
     }
     else if (entity.type() == "Service") {
-        stream << entity.name() << " [ shape=component label=\"" << entity.name() << "\" ]" << endl;
+        stream << gv_escape_name(entity.name()) << " [ shape=component label=\"" << entity.name() << "\" ]" << endl;
     }
     else {
         throw "type not supported";

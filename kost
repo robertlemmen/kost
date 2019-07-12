@@ -42,8 +42,8 @@ cat << EOF > state/3-transformed
 # test234
 SubSystem qt {
     Label: "Qualitrain Backend"
-    Service qualitrain_user_service {
-        Label: "qualitrain_user_service"
+    Service qualitrain-user-service {
+        Label: "qualitrain-user-service"
 
         Interface if1 {
             Type: "REST"
@@ -51,11 +51,11 @@ SubSystem qt {
         }
     }
 
-    Service qualitrain_api_service {
-        Label: "qualitrain_api_service"
+    Service qualitrain-api-service {
+        Label: "qualitrain-api-service"
 
         InterfaceConsumption {
-            Target: qt::qualitrain_user_service::if1
+            Target: qt::qualitrain-user-service::if1
         }
     }
 }
