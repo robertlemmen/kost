@@ -10,14 +10,14 @@ sub dump-item($item) {
     my $name = $item<metadata><name>;
     my $namespace = $item<metadata><namespace>;
     my $uid = $item<metadata><uid>;
-    say "{$kind}($uid).";
-    say "name($uid, $name).";
+    say "{$kind}(\"$uid\").";
+    say "object_name(\"$uid\", \"$name\").";
     if $namespace {
-        say "in-namespace($uid, $namespace).";
+        say "in_namespace(\"$uid\", \"$namespace\").";
     }
     for @($item<metadata><labels>) -> $label {
         if $label<name> {
-            say "label($uid, $label<name>).";
+            say "label(\"$uid\", \"$label<name>\").";
         }
         # XXX figure out why we sometimes get into the loop, but the
         # data is not filled
@@ -27,7 +27,7 @@ sub dump-item($item) {
         when 'pod' {
             for @($item<metadata><ownerReferences>) -> $owner {
                 if $owner<uid> {
-                    say "owned-by($uid, $owner<uid>).";
+                    say "owned_by(\"$uid\", \"$owner<uid>\").";
                 }
                 # XXX figure out why we sometimes get into the loop, but the
                 # data is not filled
@@ -35,13 +35,15 @@ sub dump-item($item) {
         }
         when 'service' {
             # XXX support different types
-            say "cluster-ip($uid, $item<spec><clusterIP>).";
+            if $item<spec><clusterIP> {
+                say "cluster_ip(\"$uid\", \"$item<spec><clusterIP>\").";
+            }
             if $item<spec><selector><name> {
-                say "selector-name($uid, $item<spec><selector><name>).";
+                say "selector_name(\"$uid\", \"$item<spec><selector><name>\").";
             }
         }
         when 'deployment' {
-            say "replicas($uid, $item<spec><replicas>).";
+            say "replicas(\"$uid\", \"$item<spec><replicas>\").";
         }
     }
 }

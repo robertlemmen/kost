@@ -1,8 +1,10 @@
-# vi:syntax=prolog
+% vi:syntax=prolog
+% -*- mode: prolog -*-
 
 :- initialization main, halt.
 
-consult(state/1-facts).
+:- consult("lib/infer").
+:- consult("state/1-facts").
 
 main :-
-    write('Hello, World!'), nl.
+    printgraph, nl.

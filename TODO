@@ -1,0 +1,9 @@
+KOST ToDo
+=========
+
+- make renderer read the prolog output format rather than insisting on it's own
+  stuff
+- more k8s input
+- more inferring on k8s to actually draw a basic deployment diagram with
+  namespaces, deployments, pods, containers, ports, services, IPs, paths,
+  ingresses

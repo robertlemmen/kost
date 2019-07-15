@@ -21,11 +21,16 @@ find input.d -type f | sort | sed -e 's/^input.d\///' | while read file; do
     if [[ -x "input.d/$file" ]]; then
         # XXX would be nice to redirect stderr to stdout, but not to the facts
         # file
-        input.d/$file >> state/1-facts
+        input.d/$file >> state/1-facts.tmp
     else
-        cat input.d/$file >> state/1-facts
+        cat input.d/$file >> state/1-facts.tmp
     fi
 done
+
+# sort them because prolog seems to like that...
+cat state/1-facts.tmp | sort > state/1-facts
+rm state/1-facts.tmp
+
 num_lines=`wc -l state/1-facts | cut -f 1 -d ' '`
 echo "Collected $num_lines lines of input facts"
 
