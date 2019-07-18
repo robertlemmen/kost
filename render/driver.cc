@@ -21,9 +21,8 @@ int driver::parse(const string &f) {
 	int res = parse();
 	scan_end();
 
-    cout << "digraph g {" << endl;
-    gv_dump(cout, result);
-	cout << "}";
+    cout << result << endl;
+    // XXX do somethign with it
 
 	return res;
 }

@@ -7,79 +7,67 @@
 
 #include "location.hh"
 
-class FQN {
-    public:
-        FQN();
-        FQN(const std::string &identifier, yy::location &loc);
-        FQN(const FQN &parent, const std::string &identifier, yy::location &loc);
-
-        friend std::ostream& operator<<(std::ostream& stream, const FQN& fqn);
-
-    private:
-        std::list<std::string> parts_;
-        yy::location loc_;
-};
-
-std::ostream& operator<<(std::ostream& stream, const FQN& fqn);
+class Term;
 
 class Value {
     public:
         Value();
         Value(int intval, yy::location &loc);
         Value(const std::string &value, yy::location &loc);
-        Value(const FQN &fqn, yy::location &loc);
 
         friend std::ostream& operator<<(std::ostream& stream, const Value& value);
 
     private:
-        std::variant<int, std::string, FQN> contents_; 
+        std::variant<int, std::string> contents_; 
         yy::location loc_;
 };
 
 std::ostream& operator<<(std::ostream& stream, const Value& value);
 
-class Property {
+class Array {
     public:
-        Property();
-        Property(const std::string &key, const Value &value, yy::location &loc);
+        Array(); // XXX we should have case with loc for empty arrrays
+        Array(const std::list<Value> &values, yy::location &loc);
+        Array(const std::list<Term> &terms, yy::location &loc);
 
-        friend std::ostream& operator<<(std::ostream& stream, const Property& property);
-
+        friend std::ostream& operator<<(std::ostream& stream, const Array &array);
     private:
-        std::string key_;
-        Value value_;
+        std::variant<std::list<Value>,std::list<Term>> contents_;
         yy::location loc_;
 };
 
-std::ostream& operator<<(std::ostream& stream, const Property& property);
+std::ostream& operator<<(std::ostream& stream, const Array &array);
 
-class Entity {
+class TermContents {
     public:
-        Entity();
-        Entity(const std::string &type, const std::string &name, const std::list<Property> &properties,
-            const std::list<Entity> &entities, yy::location &loc);
-
-        friend std::ostream& operator<<(std::ostream& stream, const Entity& entity);
-
-        const std::string& type() const { return type_; }
-        const std::string& name() const { return name_; }
-        const std::list<Property>& properties() const { return properties_; }
-        const std::list<Entity>& entities() const { return entities_; }
-
+        TermContents();
+        TermContents(const Value &value, yy::location &loc);
+        TermContents(const Array &array, yy::location &loc);
+        TermContents(const std::list<Term> &terms, yy::location &loc);
+   
+        friend std::ostream& operator<<(std::ostream& stream, const TermContents& contents);
     private:
-        std::string type_;
+        std::variant<Value,Array,std::list<Term>> contents_; 
+        yy::location loc_;
+};
+
+std::ostream& operator<<(std::ostream& stream, const TermContents &contents);
+
+class Term {
+    public:
+        Term();
+        Term(const std::string &name, const TermContents &contents, yy::location &loc);
+   
+        friend std::ostream& operator<<(std::ostream& stream, const Term& term);
+    private:
         std::string name_;
-        std::list<Property> properties_;
-        std::list<Entity> entities_;
+        TermContents contents_;
         yy::location loc_;
 };
 
-std::ostream& operator<<(std::ostream& stream, const Entity& entity);
+std::ostream& operator<<(std::ostream& stream, const Term &term);
 
-std::ostream& operator<<(std::ostream& stream, const std::list<Entity>& entities);
-
-std::ostream& operator<<(std::ostream &stream, const std::pair<std::list<Property>,std::list<Entity>> &body);
-
-std::ostream& operator<<(std::ostream &stream, const std::list<Property> &properties);
+std::ostream& operator<<(std::ostream& stream, const std::list<Term> &terms);
+std::ostream& operator<<(std::ostream& stream, const std::list<Value> &values);
 
 #endif /* AST_H */

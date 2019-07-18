@@ -28,7 +28,7 @@ class driver {
         // The token's location used by the scanner.
         yy::location location;
         // the result of the parsing
-        std::list<Entity> result;
+        Term result;
 };
 
 #endif // DRIVER_H

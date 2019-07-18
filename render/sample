@@ -1,20 +1,12 @@
-# test234
-SubSystem qt {
-    Label: "Qualitrain Backend"
-    Service qualitrain-user-service {
-        Label: "qualitrain-user-service"
-
-        Interface if1 {
-            Type: "REST"
-            Label: "/v1/member"
-        }
-    }
-
-    Service qualitrain-api-service {
-        Label: "qualitrain-api-service"
-
-        InterfaceConsumption {
-            Target: qt::qualitrain-user-service::if1
-        }
-    }
-}
+k8s_deployment(top_namespaces([ namespace_box(uid("07e08bab-935a-11e5-837f-42010af00009"),
+					      name("leadgen"),
+					      contained_items([ service_box(uid("1f22c8bb-03ec-11e7-8d80-42010af00009"),
+									    name("manager"),
+									    labels([ "manager"
+										   ])),
+								service_box(uid("2e696eee-4aa8-11e6-882f-42010af00009"),
+									    name("fitness-first-client"),
+									    labels([ "fitness-first-client"
+										   ]))
+							      ]))
+			      ]))

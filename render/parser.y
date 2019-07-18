@@ -30,61 +30,58 @@ class driver;
 %define api.token.prefix {TOK_}
 %token
   END  0  "end of file"
-  COLON  ":"
-  DCOLON  "::"
-  LBRACKET  "{"
-  RBRACKET  "}"
+  LPAREN  "("
+  RPAREN  ")"
+  LBRACKET  "["
+  RBRACKET  "]"
+  COMMA  ","
 ;
 
-%token <std::string> IDENTIFIER "identifier"
+%token <std::string> SYMBOL "symbol"
 %token <std::string> STRING "string literal"
 %token <int> NUMBER "number"
 
-%type <std::string> type
-%type <Property> property
 %type <Value> value
-%type <FQN> fqn
-%type <std::list<Property>> properties
-%type <Entity> entity
-%type <std::list<Entity>> entities
-%type <std::pair<std::list<Property>,std::list<Entity>>> body
+%type <std::list<Value>> values
+%type <Term> term
+%type <std::list<Term>> terms
+/* XXX perhaps these should be ast nodes to make it simpler, at least the array */
+%type <TermContents> term_contents
+%type <Array> array
+%type <Array> array_contents
 
 %printer { yyo << $$; } <*>;
 
 %%
-%start opt_entities;
+%start top_term;
 
-opt_entities: /* empty */                       { drv.result = std::list<Entity>(); }
-    | entities                                  { drv.result = $1; }
+top_term: term { drv.result = $1; }
 
-entities: entity                                { $$ = std::list<Entity>();
-                                                  $$.push_back($1); }
-    | entities entity                           { $$ = std::list<Entity>($1);
-                                                  $$.push_back($2); }
+term: SYMBOL LPAREN term_contents RPAREN { $$ = Term($1, $3, @$); }
 
-entity: type IDENTIFIER body                    { $$ = Entity($1, $2, $3.first, $3.second, @$); }
-    | type body                                 { $$ = Entity($1, std::string(""), $2.first, $2.second, @$); }
+term_contents: value     { $$ = TermContents($1, @$); }
+    | array              { $$ = TermContents($1, @$); }
+    | terms              { $$ = TermContents($1, @$); }
 
-type: IDENTIFIER                                { $$ = $1; }
+terms: term              { $$ = std::list<Term>();
+                           $$.push_back($1); }
+    | terms COMMA term   { $$ = std::list<Term>($1);
+                           $$.push_back($3); }
 
-body: LBRACKET properties entities RBRACKET     { $$ = std::make_pair($2, $3); }
-    | LBRACKET properties RBRACKET              { $$ = std::make_pair($2, std::list<Entity>()); } 
-    | LBRACKET entities RBRACKET                { $$ = std::make_pair(std::list<Property>(), $2); }
-    | LBRACKET RBRACKET                         { $$ = std::make_pair(std::list<Property>(), std::list<Entity>()); }
+values: value            { $$ = std::list<Value>();
+                           $$.push_back($1); }
+    | values COMMA value { $$ = std::list<Value>($1);
+                           $$.push_back($3); }
 
-properties: property                            { $$ = std::list<Property>(); 
-                                                  $$.push_back($1); }
-    | properties property                       { $$ = std::list<Property>($1);
-                                                  $$.push_back($2); }
 
-property: IDENTIFIER COLON value                { $$ = Property($1, $3, @$); }
+value: STRING            { $$ = Value($1, @$); }
+    | NUMBER             { $$ = Value($1, @$); }
 
-fqn: IDENTIFIER                                 { $$ = FQN($1, @$); }
-    | fqn DCOLON IDENTIFIER                     { $$ = FQN($1, $3, @$); }
+array: LBRACKET array_contents RBRACKET { $$ = $2; }
 
-value: NUMBER                                   { $$ = Value($1, @$); }
-    | STRING                                    { $$ = Value($1, @$); }
-    | fqn                                       { $$ = Value($1, @$); }
+array_contents: /* empty */ { $$ = Array(); }
+    | values { $$ = Array($1, @$); }
+    | terms  { $$ = Array($1, @$); }
 
 %%
 
